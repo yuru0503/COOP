@@ -14,4 +14,14 @@ dir_tree()
 dir_create("00_Data", c("COOP_CyBox"))
 dir_tree()
 dir_create("04_Others")
+## step 1----
+library(usethis)
+use_git()
+create_github_token() 
 
+## step 2----
+library(gitcreds)
+gitcreds_set()
+
+## step 3----
+usethis::use_github()
