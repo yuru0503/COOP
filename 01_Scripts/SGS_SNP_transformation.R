@@ -67,4 +67,4 @@ SNP_matrix[SNP_matrix == 0.5] <- 1
 SNP_matrix[SNP_matrix == 1] <- 2
 SNP_matrix[SNP_matrix == 0] <- 0
 dim(SNP_matrix)
-write.csv(SNP_matrix, "00_Data_processed/COOP_SNP_matrix.csv", row.names = FALSE)
+write.csv(SNP_matrix, "00_Data_processed/COOP_SNP_matrix.csv", row.names = TRUE)
