@@ -6,16 +6,20 @@ today <- format(Sys.Date(), "%m%d")
 load("00_Data_processed/COOP_GP_Pheno_Geno_Data.RData")
 load("00_Data_processed/GP_Training_Pheno_estimation_tbl.RData")
 load("00_Data_processed/GP_Training_YLD_estimation_tbl.RData")
+load("00_Data_processed/GP_Training_Pheno_estimation_tbl_0221.RData")
 
 SNP_training_tbl[1:5, 1:7]
 Pheno_training_estimation_tbl$Ranef_tbl[[1]] %>% view()
 
 GP_training_data_tbl <- Pheno_training_estimation_tbl %>% 
-  select(Trait, matches("Ran|Fix")) %>% 
+  select(Trait, matches("Ran|Fix|BLUE")) %>% 
   mutate(Training_SNP_tbl = list(SNP_training_tbl)) %>% 
-  mutate(Training_data = map2(Ranef_tbl, Training_SNP_tbl, ~left_join(.x, .y, by = "LineID")))
+  mutate(Training_data = map2(Ranef_tbl, Training_SNP_tbl, ~left_join(.x, .y, by = "LineID"))) %>% 
+  mutate(Training_data1 = map2(BLUE_results, Training_SNP_tbl, ~left_join(.x, .y, by = "LineID")))
 
-GP_training_data_tbl$Training_data[[1]][, 1:2]
+
+GP_training_data_tbl$Training_data[[1]][, 1:5]
+GP_training_data_tbl$Training_data1[[1]][, 1:5]
 
 # 5 repeat 5 fold cross-validation
 GP_CV_results_tbl <- GP_training_data_tbl %>% 
@@ -28,12 +32,17 @@ GP_CV_results_tbl$BayesB_CV[[1]]
 
 YLD_CV_tbl <- GP_training_data_tbl %>% 
   filter(Trait == "YLD") %>% 
-  mutate(Training_data = map(Training_data, ~filter(., !str_detect( LineID, "ISU|TL")))) %>% 
-  mutate(rrBLUP_CV = map(Training_data, ~GP_rrBLUP_CV(., Target_Y_col = "RandomEF", ID_col = "LineID", Repeat = 5))) %>% 
-  mutate(rrBLUP_stra_CV = map(Training_data, ~GP_rrBLUP_stratified_CV(., Target_Y_col = "RandomEF", ID_col = "LineID", Cluster = 1, Repeat = 5)))
+  #mutate(Training_data = map(Training_data, ~filter(., !str_detect( LineID, "ISU|TL")))) %>% 
+  mutate(rrBLUP_Ran_CV = map(Training_data, ~GP_rrBLUP_CV(., Target_Y_col = "RandomEF", ID_col = "LineID", Repeat = 5))) %>% 
+  mutate(rrBLUP_Ran_stra_CV = map(Training_data, ~GP_rrBLUP_stratified_CV(., Target_Y_col = "RandomEF", ID_col = "LineID", Cluster = 2, Repeat = 5))) %>% 
+  mutate(rrBLUP_Fix_CV = map(Training_data1, ~GP_rrBLUP_CV(., Target_Y_col = "FixEF", ID_col = "LineID", Repeat = 5))) %>% 
+  mutate(rrBLUP_Fix_stra_CV = map(Training_data1, ~GP_rrBLUP_stratified_CV(., Target_Y_col = "FixEF", ID_col = "LineID", Cluster = 2, Repeat = 5)))
 
-YLD_CV_tbl$rrBLUP_CV[[1]] %>% pluck(1) %>% acc_summaryer()
-YLD_CV_tbl$rrBLUP_stra_CV[[1]] %>% pluck(1) %>% acc_summaryer()
+
+YLD_CV_tbl$rrBLUP_Ran_CV[[1]] %>% pluck(1) %>% acc_summaryer()
+YLD_CV_tbl$rrBLUP_Ran_stra_CV[[1]] %>% pluck(1) %>% acc_summaryer()
+YLD_CV_tbl$rrBLUP_Fix_CV[[1]] %>% pluck(1) %>% acc_summaryer()
+YLD_CV_tbl$rrBLUP_Fix_stra_CV[[1]] %>% pluck(1) %>% acc_summaryer()
 
 # Save CV results
 today <- format(Sys.Date(), "%m%d")

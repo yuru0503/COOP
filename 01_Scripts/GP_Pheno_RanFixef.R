@@ -58,7 +58,7 @@ today <- format(Sys.Date(), "%m%d")
 
 #save(Pheno_training_estimation_tbl, file = "00_Data_processed/GP_Training_Pheno_estimation_tbl.RData")  
 #save(Pheno_training_estimation_tbl, file = "00_Data_processed/GP_Training_YLD_estimation_tbl.RData")  
-save(Pheno_training_estimation_tbl, file = paste0("00_Data_processed/GP_Training_estimation_tbl_", today, ".RData"))
+save(Pheno_training_estimation_tbl, file = paste0("00_Data_processed/GP_Training_Pheno_estimation_tbl_", today, ".RData"))
 
 
 
