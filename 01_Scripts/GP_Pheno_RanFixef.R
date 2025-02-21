@@ -16,16 +16,22 @@ Pheno_training_nest_tbl %>%
   )
 
 Pheno_training_estimation_tbl <- Pheno_training_nest_tbl %>%
-  filter(Trait == "EHT") %>% 
+  filter(Trait == "YLD") %>% 
   mutate(
     # Fit models
     Random_model = map(data, ~lme4::lmer(Value ~ 1 + Year + (1|Location) + Treatments+ + Tester + (1|Parent1), data = .)),
-    Results = map(Random_model, ~Estimation_results_tbl_generator(., Ran_var = "Parent1", fix_var = c("MOB712", "PS017", "MOB709")))
+    Fixed_model = map(data, ~lm(Value ~ 1 + Year + Location + Treatments + Parent1, data = .)),
+    # Extract estimates
+    Ran_results = map(Random_model, ~Estimation_results_tbl_generator(., Ran_var = "Parent1", fix_var = c("MOB712", "PS017", "MOB709"))),
+    BLUE_results = map(Fixed_model, ~emmeans::emmeans(., specs = "Parent1") %>% 
+                        as.data.frame() %>% select(Parent1, emmean) %>% 
+                        rename(FixEF = emmean, LineID = Parent1))
   ) %>% 
-  unnest_wider(Results)
+  unnest_wider(Ran_results)
 
 Pheno_training_estimation_tbl$Random_model[[1]] 
 Pheno_training_estimation_tbl$Ranef_tbl[[1]] %>% summary()
+Pheno_training_estimation_tbl$Fix_results[[1]] 
 
 ## functions
 Estimation_results_tbl_generator <- function(Object, Ran_var = "Parent1", fix_var = c("MOB712", "PS017", "MOB709")){
@@ -48,9 +54,11 @@ Estimation_results_tbl_generator <- function(Object, Ran_var = "Parent1", fix_va
   return(out)
 }
 
-save(Pheno_training_estimation_tbl, file = "00_Data_processed/GP_Training_Pheno_estimation_tbl.RData")  
-save(Pheno_training_estimation_tbl, file = "00_Data_processed/GP_Training_YLD_estimation_tbl.RData")  
+today <- format(Sys.Date(), "%m%d")
 
+#save(Pheno_training_estimation_tbl, file = "00_Data_processed/GP_Training_Pheno_estimation_tbl.RData")  
+#save(Pheno_training_estimation_tbl, file = "00_Data_processed/GP_Training_YLD_estimation_tbl.RData")  
+save(Pheno_training_estimation_tbl, file = paste0("00_Data_processed/GP_Training_estimation_tbl_", today, ".RData"))
 
 
 
