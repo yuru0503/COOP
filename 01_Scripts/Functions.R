@@ -270,7 +270,7 @@ acc_summaryer <- function(vector){
 
 # 4. Genomic prediction----
 
-GP_rrBLUP <- function(Trainging_data, Prediction_SNP_tbl,Target_Y_col = "BLUE", ID_col = "Ident"){
+GP_rrBLUP <- function(Training_data, Prediction_SNP_tbl, Target_Y_col = "BLUE", ID_col = "Ident"){
   
   Train_Pheno <- Training_data %>% 
     column_to_rownames(var = ID_col) %>%
@@ -298,7 +298,7 @@ GP_rrBLUP <- function(Trainging_data, Prediction_SNP_tbl,Target_Y_col = "BLUE", 
   
 }
 
-GP_BGLR <- function(Trainging_data, Prediction_SNP_tbl, model = "BayesB", Target_Y_col = "BLUE", ID_col = "Ident"){
+GP_BGLR <- function(Training_data, Prediction_SNP_tbl, model = "BayesB", Target_Y_col = "BLUE", ID_col = "Ident"){
   
   library(BGLR)
   
@@ -329,3 +329,15 @@ GP_BGLR <- function(Trainging_data, Prediction_SNP_tbl, model = "BayesB", Target
   
 }
 
+# 5. GP_line_selection----
+
+GP_results_tbl_generator <- function(Result_list, Name_col = "LineID", Value_col = "Predicted_value"){
+  
+  out <- Result_list %>% 
+    pluck(1) %>%
+    as.data.frame() %>% 
+    rownames_to_column(var = Name_col) %>%
+    rename(Predicted_Value = V1)
+  
+  return(out)
+}

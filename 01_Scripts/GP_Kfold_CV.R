@@ -8,7 +8,7 @@ load("00_Data_processed/GP_Training_Pheno_estimation_tbl.RData")
 load("00_Data_processed/GP_Training_YLD_estimation_tbl.RData")
 
 SNP_training_tbl[1:5, 1:7]
-Pheno_training_estimation_tbl$Ranef_tbl[[1]] %>% head()
+Pheno_training_estimation_tbl$Ranef_tbl[[1]] %>% view()
 
 GP_training_data_tbl <- Pheno_training_estimation_tbl %>% 
   select(Trait, matches("Ran|Fix")) %>% 
@@ -28,6 +28,7 @@ GP_CV_results_tbl$BayesB_CV[[1]]
 
 YLD_CV_tbl <- GP_training_data_tbl %>% 
   filter(Trait == "YLD") %>% 
+  mutate(Training_data = map(Training_data, ~filter(., !str_detect( LineID, "ISU|TL")))) %>% 
   mutate(rrBLUP_CV = map(Training_data, ~GP_rrBLUP_CV(., Target_Y_col = "RandomEF", ID_col = "LineID", Repeat = 5))) %>% 
   mutate(rrBLUP_stra_CV = map(Training_data, ~GP_rrBLUP_stratified_CV(., Target_Y_col = "RandomEF", ID_col = "LineID", Cluster = 1, Repeat = 5)))
 

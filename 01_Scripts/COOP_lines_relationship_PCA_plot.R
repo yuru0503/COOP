@@ -42,6 +42,7 @@ pca_augmented <- augment(pca_fit, data = COOP_lines_info_SNP_tbl)
 pca_augmented %>% glimpse() %>% head(5)
 
 g <- pca_augmented %>%
+  #filter(str_detect(Group, "BS39")) %>%
   rename_at(vars(starts_with(".fitted")),
             list(~str_replace(.,".fitted",""))) %>%
   ggplot(aes(x=PC1, 
