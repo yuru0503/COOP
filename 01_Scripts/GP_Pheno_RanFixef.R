@@ -6,6 +6,7 @@ library(lme4)
 load("00_Data_processed/COOP_GP_Pheno_Geno_Data.RData")
 
 Pheno_training_nest_tbl$data[[1]] %>% glimpse()
+Pheno_training_nest_tbl$data[[1]] %>% str()
 
 Pheno_training_nest_tbl %>%
   summarise(
@@ -15,13 +16,15 @@ Pheno_training_nest_tbl %>%
   )
 
 Pheno_training_estimation_tbl <- Pheno_training_nest_tbl %>%
+  filter(Trait == "EHT") %>% 
   mutate(
     # Fit models
-    Random_model = map(data, ~lme4::lmer(Value ~ 1 + (1|Year) + (1|Location) + Tester + (1|Parent1), data = .)),
+    Random_model = map(data, ~lme4::lmer(Value ~ 1 + Year + (1|Location) + Treatments+ + Tester + (1|Parent1), data = .)),
     Results = map(Random_model, ~Estimation_results_tbl_generator(., Ran_var = "Parent1", fix_var = c("MOB712", "PS017", "MOB709")))
   ) %>% 
   unnest_wider(Results)
 
+Pheno_training_estimation_tbl$Random_model[[1]] 
 Pheno_training_estimation_tbl$Ranef_tbl[[1]] %>% summary()
 
 ## functions
@@ -46,6 +49,7 @@ Estimation_results_tbl_generator <- function(Object, Ran_var = "Parent1", fix_va
 }
 
 save(Pheno_training_estimation_tbl, file = "00_Data_processed/GP_Training_Pheno_estimation_tbl.RData")  
+save(Pheno_training_estimation_tbl, file = "00_Data_processed/GP_Training_YLD_estimation_tbl.RData")  
 
 
 
