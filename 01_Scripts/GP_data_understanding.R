@@ -28,9 +28,9 @@ glimpse(Training_set_info_tbl)
 plot_missing(Training_set_info_tbl )
 plot_bar(Training_set_info_tbl)
 plot_bar(Training_set_info_tbl$TesterID)
+Training_set_info_tbl$LineID %>% unique() %>% length()
 Training_set_info_tbl$TesterID %>% unique() %>% length()
 
 ## Prediction set info----
 glimpse(Prediction_set_info_tbl)
 plot_bar(Prediction_set_info_tbl)
-

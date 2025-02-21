@@ -53,3 +53,15 @@ SNP_prediction_tbl <- Genotypic_matrix %>%
 dim(SNP_prediction_tbl)
 
 save(Pheno_training_nest_tbl, SNP_training_tbl, SNP_prediction_tbl, file = "00_Data_processed/COOP_GP_Pheno_Geno_Data.RData")
+
+## genetic relationship matrix
+#install.packages(c("AGHmatrix", "pheatmap"))
+Geno_matrix <- SNP_training_tbl %>% 
+  column_to_rownames("LineID") %>%
+  as.matrix() 
+Gmatrix <- AGHmatrix::Gmatrix(Geno_matrix, method = "VanRaden")
+
+pheatmap::pheatmap(Gmatrix, cluster_rows = TRUE, cluster_cols = TRUE,
+                   show_rownames = TRUE, show_colnames = TRUE, fontsize = 8,
+                   border_color = NA, color = colorRampPalette(c("white", "blue"))(100))
+
